@@ -1,0 +1,13 @@
+#!/bin/bash
+# Add a route to 10.0.0.0/8 via dynamically resolved gateway
+
+ROUTE="10.0.0.0/8"
+GATEWAY="{{ docker_swarm_custom_private_network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address') }}"
+
+# Check if the route already exists
+if ! ip route | grep -q "$ROUTE via $GATEWAY"; then
+    echo "Adding route $ROUTE via $GATEWAY..."
+    ip route add $ROUTE via $GATEWAY
+else
+    echo "Route $ROUTE via $GATEWAY already exists."
+fi

@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: docker_swarm_gateway
   vars:
     ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
     ansible_user: "{{ global_ansible_user | default('ansible') }}"
@@ -11,18 +11,13 @@
       name: "{{ item }}"
       selection: hold
     with_items:
-      - containerd.io
-      - docker-ce-cli
-      - docker-ce
-      - docker-ce-rootless-extras
+      - openvpn
 
-- hosts: all
+- hosts: docker_swarm_gateway
   vars:
     ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
     ansible_user: "{{ global_ansible_user | default('ansible') }}"
   become: True
   gather_facts: true
   roles:
-    - docker-swarm-hetzner-init-variables
-    - docker-pre-setup
-    - docker-node-upgrade
+    - gateway-upgrade

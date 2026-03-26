@@ -1,0 +1,56 @@
+---
+- name: "ensure /data/ansible exists"
+  file:
+    path: /data/ansible
+    state: directory
+
+- name: insert ufw mss normalization
+  blockinfile:
+    insertbefore: '# quickly process packets for which we already have a connection'
+    path: "/etc/ufw/before.rules"
+    block: |
+      -A ufw-before-forward -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1360
+    marker: "# {mark} mss normalization"
+
+- name: Restart UFW
+  service:
+    name: ufw
+    state: restarted
+
+- name: Enable packet forwarding for ipv4
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: Make sure OpenVPN package is installed
+  apt:
+    name: "openvpn"
+    state: present
+    update_cache: yes
+
+- name: Remove unused /etc/openvpn/client folder
+  file:
+    path: /etc/openvpn/client
+    state: absent
+
+- name: Remove unused /etc/openvpn/server folder
+  file:
+    path: /etc/openvpn/server
+    state: absent
+
+- name: Template openvpn site-to-site configuration
+  template:
+    src: "site_to_site.conf.j2"
+    dest: "/etc/openvpn/site_to_site.conf"
+    group: root
+    owner: root
+    mode: 0600
+
+- name: Start openvpn site_to_site
+  service:
+    name: openvpn@site_to_site
+    state: restarted
+    enabled: yes

@@ -1,0 +1,8 @@
+---
+- name: "upgrade gateway VPN"
+  shell: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+
+- name: "Reboot gateway VPN"
+  ansible.builtin.reboot:
+    reboot_timeout: 3600
+    search_paths: ['/lib/molly-guard', '/sbin']

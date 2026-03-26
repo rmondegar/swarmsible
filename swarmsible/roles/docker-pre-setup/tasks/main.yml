@@ -44,4 +44,3 @@
     - docker-ce-cli
     - docker-ce
     - docker-ce-rootless-extras
-    - docker-scan-plugin

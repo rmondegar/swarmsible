@@ -6,4 +6,6 @@
     labels_state: replace
     hostname: "{{ hostvars[item]['inventory_hostname'] }}"
   when: inventory_hostname == docker_swarm_main_manager
-  with_items: "{{ groups['docker_swarm'] | default([]) }}"
+  with_items:
+    - "{{ groups['docker_swarm_manager'] | default([]) }}"
+    - "{{ groups['docker_swarm_worker'] | default([]) }}"

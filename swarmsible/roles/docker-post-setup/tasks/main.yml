@@ -20,12 +20,23 @@
     path: /data/ansible/state/docker/changes
     state: directory
 
-- name: Install pip docker package
-  pip:
-    name: docker
+- name: Install python3-docker (Docker SDK for Python)
+  apt:
+    name: python3-docker
+    update_cache: "{{ apt_update_cache | default('True') }}"
 
 - include_tasks: subtasks/2019_03_15.yml
 - include_tasks: subtasks/2020_07_17.yml
 - include_tasks: subtasks/2021_03_04.yml
 - include_tasks: subtasks/2022_06_11.yml
 - include_tasks: subtasks/2024_04_16.yml
+
+- name: "Pin {{ item }} version"
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  with_items:
+    - containerd.io
+    - docker-ce-cli
+    - docker-ce
+    - docker-ce-rootless-extras

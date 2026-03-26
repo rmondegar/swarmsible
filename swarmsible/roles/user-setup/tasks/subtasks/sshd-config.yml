@@ -25,4 +25,16 @@
   systemd:
     name: sshd
     state: reloaded
+  # only for ubuntu < 24.04
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('24.04', '<')
+
+# else reload ssh
+
+- name: reload ssh
+  systemd:
+    name: ssh
+    state: reloaded
+  # only for ubuntu >= 24.04
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('24.04', '>=')
+  
   

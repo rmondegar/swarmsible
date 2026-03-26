@@ -1,0 +1,39 @@
+---
+- name: "Add static routes for private networks behind VPN"
+  when: docker_swarm_private_gateway_enabled | default(false)
+  block:
+    - name: "ensure /data/ansible exists"
+      file:
+        path: /data/ansible
+        state: directory
+
+    - name: "Template /data/ansible/add_static_route.sh"
+      template:
+        src: "add_static_route.sh.j2"
+        dest: "/data/ansible/add_static_route.sh"
+        mode: 0770
+        owner: root
+        group: root
+
+    - name: Create the systemd service for adding the route
+      copy:
+        src: "add_static_route.service"
+        dest: /etc/systemd/system/add-route.service
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Reload systemd to apply the new service
+      command: systemctl daemon-reload
+
+    - name: Enable the systemd service to run on startup
+      systemd:
+        name: add-route.service
+        enabled: true
+        state: started
+
+    - name: Add a cron job to call the script every 2 minutes
+      cron:
+        name: "Ensure that static routes are properly configured"
+        job: "/data/ansible/add_static_route.sh"
+        minute: "*/2"
