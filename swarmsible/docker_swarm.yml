@@ -9,17 +9,18 @@
   roles:
     # copy the ssl certs from the beginning so all nodes have the certs on the system
     # so all mounts work
-    - docker-swarm-hetzner-init-variables
-    - copy-ssl-certs
-    - docker-sysctl-tune
-    - docker-pre-setup
-    - docker-setup
-    - docker-post-setup
-    - docker-login
-    - ufw-docker-install
-    - docker-swarm-firewall
-    - docker-swarm-hosts
-    - docker-swarm-routes
+    - role: docker-swarm-hetzner-init-variables
+    - role: copy-ssl-certs
+    - role: docker-sysctl-tune
+    - role: docker-pre-setup
+    - role: docker-setup
+    - role: docker-post-setup
+    - role: docker-login
+    - role: ufw-docker-install
+      when: docker_swarm_use_ufw_docker | default(true) | bool
+    - role: docker-swarm-firewall
+    - role: docker-swarm-hosts
+    - role: docker-swarm-routes
 
 - hosts:
   - docker_swarm_manager
@@ -28,9 +29,9 @@
     ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
     ansible_user: "{{ global_ansible_user | default('ansible') }}"
   roles:
-    - docker-swarm-hetzner-init-variables
-    - docker-swarm-init
-    - docker-swarm-add-manager
+    - role: docker-swarm-hetzner-init-variables
+    - role: docker-swarm-init
+    - role: docker-swarm-add-manager
 
 - hosts:
   - docker_swarm_worker
@@ -39,8 +40,8 @@
     ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
     ansible_user: "{{ global_ansible_user | default('ansible') }}"
   roles:
-    - docker-swarm-hetzner-init-variables
-    - docker-swarm-add-worker
+    - role: docker-swarm-hetzner-init-variables
+    - role: docker-swarm-add-worker
 
 - hosts:
   - docker_swarm_manager
@@ -50,5 +51,5 @@
     ansible_ssh_private_key_file: "{{ global_ansible_ssh_private_key_file | default((project_base_dir | default(playbook_dir)) + '/ssh_keys/ansible_rsa') }}"
     ansible_user: "{{ global_ansible_user | default('ansible') }}"
   roles:
-    - docker-swarm-hetzner-init-variables
-    - docker-swarm-labels
+    - role: docker-swarm-hetzner-init-variables
+    - role: docker-swarm-labels
